@@ -158,7 +158,6 @@ class Weather:
             self.current_weather_canvas.itemconfig(self.image_holder, image=self.current_weather_image)
             #self.current_weather_canvas.create_image(75, 75, anchor="center", image=self.current_weather_image) delete this
 
-            self.current_song_canvas.itemconfig(self.image_holder, image=self.photo)
 
         self.frame.after(3600000, self.getWeatherData)
 
