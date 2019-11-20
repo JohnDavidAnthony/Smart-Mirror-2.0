@@ -75,7 +75,7 @@ class Weather:
         self.current_weather_frame = tk.Frame(self.frame, bg="black", borderwidth=1)
         self.current_weather_frame.pack(side="top", anchor="n", fill="x", expand=True)
         # Current Weather icon
-        self.current_weather_canvas = tk.Canvas(self.current_weather_frame, bg="black", width=150, height=150)
+        self.current_weather_canvas = tk.Canvas(self.current_weather_frame, bg="black", width=150, height=150, highlightthickness=0)
         self.current_weather_canvas.pack(fill="x", expand=True, anchor="center", padx=50)
         self.current_weather_image = ImageTk.PhotoImage(file="assets/cloudy.png")
 
@@ -195,7 +195,7 @@ class Spot:
 
         # Current song artwork
 
-        self.current_song_canvas = tk.Canvas(self.frame, bg="black", width=150, height=150)
+        self.current_song_canvas = tk.Canvas(self.frame, bg="black", width=150, height=150, highlightthickness=0)
         self.current_song_canvas.pack(fill="x", expand=True, padx=50)
 
         self.default_cover_art = "https://lh3.googleusercontent.com/UrY7BAZ-XfXGpfkeWg0zCCeo-7ras4DCoRalC_WXXWTK9q5b0Iw7B0YQMsVxZaNB7DM"
@@ -221,25 +221,26 @@ class Spot:
 
 
     def getCurrentSong(self):
-        current_track = self.spotify.current_user_playing_track()
-        if current_track is None:
-            song = "Nothing's Playing"
-            artwork = self.default_cover_art
-            artist = ""
-        else:
-            song = current_track["item"]["name"]
-            artwork = current_track["item"]["album"]["images"][1]["url"]
-            artist = current_track["item"]["artists"][0]["name"]
+        if self.spotify is not None:
+            current_track = self.spotify.current_user_playing_track()
+            if current_track is None:
+                song = "Nothing's Playing"
+                artwork = self.default_cover_art
+                artist = ""
+            else:
+                song = current_track["item"]["name"]
+                artwork = current_track["item"]["album"]["images"][1]["url"]
+                artist = current_track["item"]["artists"][0]["name"]
 
-        image_byt = urllib.request.urlopen(artwork).read()
-        img = Image.open(io.BytesIO(image_byt))
-        img = img.resize((150, 150), Image.ANTIALIAS)  # The (250, 250) is (height, width)
-        self.photo = ImageTk.PhotoImage(img)
+            image_byt = urllib.request.urlopen(artwork).read()
+            img = Image.open(io.BytesIO(image_byt))
+            img = img.resize((150, 150), Image.ANTIALIAS)  # The (250, 250) is (height, width)
+            self.photo = ImageTk.PhotoImage(img)
 
-        self.current_song_canvas.itemconfig(self.image_holder, image=self.photo)
+            self.current_song_canvas.itemconfig(self.image_holder, image=self.photo)
 
-        self.current_song_artist_label.config(text=artist)
-        self.current_song_name_label.config(text=song)
+            self.current_song_artist_label.config(text=artist)
+            self.current_song_name_label.config(text=song)
 
         self.frame.after(10000, self.getCurrentSong)
 
