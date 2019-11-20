@@ -246,13 +246,14 @@ class Spot:
 
 
 
-
 class FullScreen:
     def __init__(self):
         self.window = tk.Tk()
         self.window.geometry("500x1000")  # Width x Height
         self.window.configure(bg="black")
-        #self.window.attributes("-fullscreen", True)
+        self.window.attributes("-fullscreen", True)
+        self.fullscreen = True
+        self.window.bind('<Escape>', self.toggle_fullscreen)
 
         # Get Current longitude and latitude
         geolocation = geocoder.ip("me").latlng
@@ -293,8 +294,6 @@ class FullScreen:
         # self.window.rowconfigure(5, weight=1)
 
 
-
-
 #         Configure Frames and add components
         # Clock
         self.clock = Clock(self.bottomFrame)
@@ -310,6 +309,9 @@ class FullScreen:
         self.spotify = Spot(self.rightFrame, "n", "top")
 
 
+    def toggle_fullscreen(self, event):
+        self.fullscreen = not self.fullscreen
+        self.window.attributes("-fullscreen", self.fullscreen)
 
 if __name__ == "__main__":
     WEATHER_APIKEY = "dec6af11d23906a2380e2214c2416010"
