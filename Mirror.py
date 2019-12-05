@@ -7,6 +7,10 @@ import geocoder
 import json
 import urllib.request
 from PIL import ImageTk, Image, ImageOps
+import PIL.Image
+
+import spotipy
+import spotipy.util as util
 
 
 class DynamicLabel(tk.Label):
@@ -104,12 +108,11 @@ class Weather:
         self.frame.after(0, self.getWeatherData)
 
     def getWeatherData(self):
-        print("run")
+        print("GetWeatherRun")
         with urllib.request.urlopen(self.address) as url:
             data = json.loads(url.read().decode())
             weather_description = data["weather"][0]["description"]
             weather_id = data["weather"][0]["id"]
-            print(weather_id)
             weather_temp_current = data["main"]["temp"]
 
             self.current_weather_label.config(text=weather_description)
@@ -151,7 +154,7 @@ class Weather:
             else:
                 img_path = "assets/cloudy.png"
 
-            self.current_weather_image = ImageTk.PhotoImage(Image.open(img_path))
+            self.current_weather_image = ImageTk.PhotoImage(PIL.Image.open(img_path))
             x = self.current_weather_canvas.winfo_width() / 2
             y = self.current_weather_canvas.winfo_height() / 2
 
@@ -177,16 +180,18 @@ class Weather:
 
 
 class Spot:
-
-    def __init__(self, parent, anchor="e", side="right"):
-        import spotipy
-        import spotipy.util as util
+    def auth(self):
         scope = "user-read-currently-playing"
         token = util.prompt_for_user_token(USERNAME, scope, client_id=SPOTIPY_CLIENT_ID,
                                            client_secret=SPOTIPY_CLIENT_SECRET,
                                            redirect_uri=SPOTIPY_REDIRECT_URI)
 
         self.spotify = spotipy.Spotify(auth=token)
+
+    def __init__(self, parent, anchor="e", side="right"):
+        self.spotify = None
+
+        self.auth()
 
         # Spotify Frame
         self.frame = tk.Frame(parent, bg="black", borderwidth=1)
@@ -200,8 +205,8 @@ class Spot:
 
         self.default_cover_art = "https://lh3.googleusercontent.com/UrY7BAZ-XfXGpfkeWg0zCCeo-7ras4DCoRalC_WXXWTK9q5b0Iw7B0YQMsVxZaNB7DM"
         image_byt = urllib.request.urlopen(self.default_cover_art).read()
-        img = Image.open(io.BytesIO(image_byt))
-        img = img.resize((150, 150), Image.ANTIALIAS)  # The (250, 250) is (height, width)
+        img = PIL.Image.open(io.BytesIO(image_byt))
+        img = img.resize((150, 150), PIL.Image.ANTIALIAS)  # The (250, 250) is (height, width)
         self.photo = ImageTk.PhotoImage(img)
 
         self.current_song_canvas.update()
@@ -219,10 +224,16 @@ class Spot:
 
         self.getCurrentSong()
 
-
     def getCurrentSong(self):
+        print("GetCurrentSongRun")
         if self.spotify is not None:
-            current_track = self.spotify.current_user_playing_track()
+            try:
+                current_track = self.spotify.current_user_playing_track()
+
+            except:
+                self.auth()
+                current_track = self.spotify.current_user_playing_track()
+
             if current_track is None:
                 song = "Nothing's Playing"
                 artwork = self.default_cover_art
@@ -233,8 +244,8 @@ class Spot:
                 artist = current_track["item"]["artists"][0]["name"]
 
             image_byt = urllib.request.urlopen(artwork).read()
-            img = Image.open(io.BytesIO(image_byt))
-            img = img.resize((150, 150), Image.ANTIALIAS)  # The (250, 250) is (height, width)
+            img = PIL.Image.open(io.BytesIO(image_byt))
+            img = img.resize((150, 150), PIL.Image.ANTIALIAS)  # The (250, 250) is (height, width)
             self.photo = ImageTk.PhotoImage(img)
 
             self.current_song_canvas.itemconfig(self.image_holder, image=self.photo)
@@ -243,7 +254,6 @@ class Spot:
             self.current_song_name_label.config(text=song)
 
         self.frame.after(10000, self.getCurrentSong)
-
 
 
 class FullScreen:
