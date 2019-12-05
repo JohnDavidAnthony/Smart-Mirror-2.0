@@ -12,6 +12,8 @@ import PIL.Image
 import spotipy
 import spotipy.util as util
 
+from utilities import *
+
 
 class DynamicLabel(tk.Label):
     def __init__(self, *args, **kwargs):
@@ -215,9 +217,13 @@ class Spot:
         self.image_holder = self.current_song_canvas.create_image(x, y, anchor="center", image=self.photo)
 
         #Current song Labels
-        self.current_song_name_label = tk.Label(self.frame, font=('Helvetica', FONTSIZE), fg="white",
-                                              bg="black", wraplength=300)
-        self.current_song_name_label.pack(anchor="s", side="bottom", expand=True, fill="x", padx=5, )
+        self.current_song_marquee = Marquee(self.frame, text="Nothing's Playing", relief="sunken", textbox_width=300)
+        self.current_song_marquee.itemconfig(self.current_song_marquee.text_id, font=('Helvetica', FONTSIZE))
+        self.current_song_marquee.pack(side="bottom", anchor="s", fill="y", pady=20, padx=5)
+
+        # self.current_song_name_label = tk.Label(self.frame, font=('Helvetica', FONTSIZE), fg="white",
+        #                                       bg="black", wraplength=300)
+        # self.current_song_name_label.pack(anchor="s", side="bottom", expand=True, fill="x", padx=5, )
 
         self.current_song_artist_label = tk.Label(self.frame, font=('Helvetica', FONTSIZE), fg="white",bg="black")
         self.current_song_artist_label.pack(side="bottom", anchor="s", expand=True, fill="x", padx=5)
@@ -251,7 +257,7 @@ class Spot:
             self.current_song_canvas.itemconfig(self.image_holder, image=self.photo)
 
             self.current_song_artist_label.config(text=artist)
-            self.current_song_name_label.config(text=song)
+            self.current_song_marquee.change_text(song)
 
         self.frame.after(10000, self.getCurrentSong)
 
