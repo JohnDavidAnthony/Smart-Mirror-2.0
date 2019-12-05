@@ -66,7 +66,11 @@ class Marquee(tk.Canvas):
     def change_text(self, text):
         (x0, y0, x1, y1) = self.bbox("text")
         self.height = (y1 - y0) + (2 * self.margin)
+        y0 = int(self.height / 2)
+        self.coords("text", 0, y0)
+
         self.configure(height=self.height)
+
         if x1 < self.textbox_width - 10:
             self.itemconfig(self.text_id, text=text)
             self.animate()
