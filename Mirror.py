@@ -67,9 +67,9 @@ class Weather:
         self.future_weather_frame.pack(side="top", anchor="n", fill="x", expand=True)
 
         # 3hr Weather icon
-        self.hr3_frame = tk.Frame(self.frame, bg="black", borderwidth=1)
+        self.hr3_frame = tk.Frame(self.future_weather_frame, bg="black", borderwidth=1)
         self.hr3_frame.pack(side="top", anchor="n", fill="x", expand=True)
-        self.hr3_weather_canvas = tk.Canvas(self.future_weather_frame, bg="black", width=75, height=75,
+        self.hr3_weather_canvas = tk.Canvas(self.hr3_frame, bg="black", width=75, height=75,
                                                 highlightthickness=0)
         self.hr3_weather_canvas.grid(columnspan=3, row=1, padx=50)
         self.hr3_weather_image = ImageTk.PhotoImage(file="assets/cloudy.png")
@@ -78,16 +78,39 @@ class Weather:
         y = self.hr3_weather_canvas.winfo_height() / 2
         self.hr3_image_holder = self.hr3_weather_canvas.create_image(x, y, anchor="center",
                                                                      image=self.hr3_weather_image)
-        self.hr3_title = tk.Label(self.future_weather_frame, font=('Helvetica', FONTSIZE),
+        self.hr3_title = tk.Label(self.hr3_frame, font=('Helvetica', FONTSIZE),
                                                fg="white",
                                                bg="black", text="Later Today")
         self.hr3_title.grid(row=0, columnspan=3, padx=5)
-        self.hr3_weather_temp_label = tk.Label(self.future_weather_frame, font=('Helvetica', int(FONTSIZE/2)), fg="white",
+        self.hr3_weather_temp_label = tk.Label(self.hr3_frame, font=('Helvetica', int(FONTSIZE/2)), fg="white",
                                                    bg="black")
         self.hr3_weather_temp_label.grid(row=2, column=2, padx=5)
-        self.hr3_weather_label = tk.Label(self.future_weather_frame, font=('Helvetica', int(FONTSIZE/2)), fg="white",
+        self.hr3_weather_label = tk.Label(self.hr3_frame, font=('Helvetica', int(FONTSIZE/2)), fg="white",
                                               bg="black")
         self.hr3_weather_label.grid(row=2, columnspan=2, padx=5)
+
+        # 1 Day Weather __________
+        self.day1_frame = tk.Frame(self.future_weather_frame, bg="black", borderwidth=1)
+        self.day1_frame.pack(side="top", anchor="n", fill="x", expand=True)
+        self.day1_weather_canvas = tk.Canvas(self.day1_frame, bg="black", width=75, height=75,
+                                                highlightthickness=0)
+        self.day1_weather_canvas.grid(columnspan=3, row=1, padx=50)
+        self.day1_weather_image = ImageTk.PhotoImage(file="assets/cloudy.png")
+        self.day1_weather_canvas.update()
+        x = self.day1_weather_canvas.winfo_width() / 2
+        y = self.day1_weather_canvas.winfo_height() / 2
+        self.day1_image_holder = self.day1_weather_canvas.create_image(x, y, anchor="center",
+                                                                     image=self.day1_weather_image)
+        self.day1_title = tk.Label(self.day1_frame, font=('Helvetica', FONTSIZE),
+                                               fg="white",
+                                               bg="black", text="Tomorrow")
+        self.day1_title.grid(row=0, columnspan=3, padx=5)
+        self.day1_weather_temp_label = tk.Label(self.day1_frame, font=('Helvetica', int(FONTSIZE/2)), fg="white",
+                                                   bg="black")
+        self.day1_weather_temp_label.grid(row=2, column=2, padx=5)
+        self.day1_weather_label = tk.Label(self.day1_frame, font=('Helvetica', int(FONTSIZE/2)), fg="white",
+                                              bg="black")
+        self.day1_weather_label.grid(row=2, columnspan=2, padx=5)
 
         self.weather_description = ""
         self.weather_id = ""
@@ -132,11 +155,16 @@ class Weather:
             self.hr3_weather_label.config(text=hours_3["weather"][0]["description"])
 
             day_1 = data["list"][3]
+            img_path = self.code_to_path(day_1["weather"][0]["id"])
+            image = Image.open(img_path)
+            image = image.resize((75, 75), Image.ANTIALIAS)
+            self.day1_weather_image = ImageTk.PhotoImage(image)
+            self.day1_weather_canvas.itemconfig(self.day1_image_holder, image=self.day1_weather_image)
+            self.day1_weather_temp_label.config(text=str(round((day_1["main"]["temp"] * 2) / 2)) + "°C")
+            self.day1_weather_label.config(text=day_1["weather"][0]["description"])
+
             day_2 = data["list"][7]
             day_3 = data["list"][11]
-
-
-
 
         self.frame.after(10800000, self.getFutureWeather)
 
