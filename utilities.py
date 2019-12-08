@@ -77,9 +77,30 @@ class Marquee(tk.Canvas):
         self.itemconfig(self.text_id, text=text)
 
 
-# root = tk.Tk()
-# marquee = Marquee(root, text="Nothing's Playing", relief="sunken")
-# marquee.pack(side="top", fill="none", pady=20)
-# marquee.change_text("adwfsjlihbuiogyftgui87tdrxfyugi8oyigfgchuyio8ygfhchyu")
-#
-# root.after(1000, root.mainloop())
+class DynamicLabel(tk.Label):
+    def __init__(self, *args, **kwargs):
+        tk.Label.__init__(self, *args, **kwargs)
+
+        # clone the font, so we can dynamically change
+        # it to fit the label width
+        font = self.cget("font")
+        base_font = tk.font.nametofont(self.cget("font"))
+        self.font = tk.font.Font()
+        self.font.configure(**base_font.configure())
+        self.configure(font=self.font)
+
+        self.bind("<Configure>", self._on_configure)
+
+    def _on_configure(self, event):
+        text = self.cget("text")
+
+        # first, grow the font until the text is too big,
+        size = self.font.actual("size")
+        while size < event.width:
+            size += 1
+            self.font.configure(size=size)
+
+        # ... then shrink it until it fits
+        while size > 1 and self.font.measure(text) > event.width:
+            size -= 1
+            self.font.configure(size=size)
