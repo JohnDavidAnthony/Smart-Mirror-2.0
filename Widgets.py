@@ -338,7 +338,7 @@ class Stauffer:
 
         self.title = tk.Label(self.frame, font=('Helvetica', self.FONTSIZE), fg="white", bg="black", text="Stauffer Capacity")
         self.title.pack(side="top", anchor="n", expand=True, fill="x", padx=5)
-
+        self.canvas = None
         self.doughnut()
 
     def doughnut(self):
@@ -354,20 +354,27 @@ class Stauffer:
         sizes = [capacity, 100-capacity]
         colors = ['#FFFFFF', '#000000']
 
-        plt.pie(sizes, colors=colors, startangle=90, pctdistance=0)
-        plt.annotate(capacity_str, xy=(-.45, -.15))
+        try:
+            self.canvas.get_tk_widget().pack_forget()
+        except AttributeError:
+            pass
+
+        fig, ax = plt.subplots()
+        ax.pie(sizes, colors=colors, startangle=90, pctdistance=0)
+        ax.annotate(capacity_str, xy=(-.45, -.15))
         # draw circle
         centre_circle = plt.Circle((0, 0), 0.70, fc='black')
-        fig = plt.gcf()
-        fig.set_facecolor("black")
-        fig.gca().add_artist(centre_circle)
-        # Equal aspect ratio ensures that pie is drawn as a circle
-        plt.axis('equal')
-        plt.tight_layout()
 
-        canvas = FigureCanvasTkAgg(fig, master=self.frame)
-        canvas.get_tk_widget().config(width=200, height=200)
-        canvas.get_tk_widget().pack()
-        canvas.draw()
+        # fig = plt.gcf()
+        fig.set_facecolor("black")
+        ax.add_artist(centre_circle)
+        # Equal aspect ratio ensures that pie is drawn as a circle
+        ax.axis('equal')
+        fig.tight_layout()
+
+        self.canvas = FigureCanvasTkAgg(fig, master=self.frame)
+        self.canvas.get_tk_widget().config(width=200, height=200)
+        self.canvas.get_tk_widget().pack()
+        self.canvas.draw()
 
         self.frame.after(600000, self.doughnut)
